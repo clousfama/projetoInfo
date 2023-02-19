@@ -7,6 +7,7 @@ package br.com.info_Os.telas;
 
 import java.sql.*;
 import br.com.info_Os.dal.ModuloConexao;
+import java.awt.Color;
 import javax.swing.JOptionPane;
 
 /**
@@ -18,7 +19,7 @@ public class TelaLogiin extends javax.swing.JFrame {
     Connection conexao = null;
     PreparedStatement pst = null;
     ResultSet rs = null;
-    
+
     public void logar() {
         String sql = "select * from tbusuarios where login=? and senha=?";
         try {
@@ -27,13 +28,31 @@ public class TelaLogiin extends javax.swing.JFrame {
             // conteúdo das variáveis
             pst = conexao.prepareStatement(sql);
             pst.setString(1, txtUsuario.getText());
-            pst.setString(2, txtSenha.getText());
+            String captura = new String(txtSenha.getPassword());
+            pst.setString(2, captura);
             // a linha abaixo executa a query
             rs = pst.executeQuery();
             // se existir usuario e senha correspondente
             if (rs.next()) {
-                TelaPrincipal principal = new TelaPrincipal ();
-                principal.setVisible(true);                
+                // a linha abaixo obtém o conteúdo do campo perfil da tabela tbusuario
+                String perfil = rs.getString(6);
+                // System.out.println(perfil);
+                // a estrutura abaixo faz o tratamento do perfil do usuario
+                if (perfil.equals("admin")) {
+                    TelaPrincipal principal = new TelaPrincipal();
+                    principal.setVisible(true);
+                    TelaPrincipal.menRel.setEnabled(true);
+                    TelaPrincipal.menCadUsu.setEnabled(true);
+                    TelaPrincipal.lblUsuario.setText(rs.getString(2));
+                    TelaPrincipal.lblUsuario.setForeground(Color.red);
+                    this.dispose();
+                } else {
+                    TelaPrincipal principal = new TelaPrincipal();
+                    principal.setVisible(true);
+                    TelaPrincipal.lblUsuario.setText(rs.getString(2));
+                    this.dispose();
+                }
+                //conexao.close();
             } else {
                 JOptionPane.showMessageDialog(null, "usuário e/ou senha inválido(s)");
             }
@@ -135,7 +154,7 @@ public class TelaLogiin extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // chamando o método logar
-        logar ();
+        logar();
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
